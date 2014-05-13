@@ -280,7 +280,10 @@ module Mongo
     def get_valid_seed_node
       seed_list.each do |seed|
         node = Mongo::Node.new(self.connection, seed)
-        if !node.connect
+        if Mongo::StaticStorage.instance.is_host_unavailable?(node.host_string)
+          next
+        elsif !node.connect
+          Mongo::StaticStorage.instance.add_unavailable_host(node.host_string)
           next
         elsif node.set_config
           return node
