@@ -98,10 +98,10 @@ module Mongo
         warn "Please specify hosts as an array of 'host:port' strings; the old format will be removed in v2.0"
         @seeds = args
       else
-        args.first.map do |host_port|
+        args.collect(&:first).map do |host_port|
           seed = host_port.split(":")
           seed[1] = seed[1].to_i
-          seeds << seed
+          @seeds << seed
         end
       end
 
