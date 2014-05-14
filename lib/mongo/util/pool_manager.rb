@@ -278,14 +278,20 @@ module Mongo
     #
     # If we don't get a response, raise an exception.
     def get_valid_seed_node
+      if seed = Mongo::StaticStorage.instance.valid_seed_node
+        node = Mongo::Node.new(self.connection, seed)
+        return node if node.connect && node.set_config
+      end
+            
       seed_list.each do |seed|
         node = Mongo::Node.new(self.connection, seed)
-        if Mongo::StaticStorage.instance.is_host_unavailable?(node.host_string)
+        if !Mongo::StaticStorage.instance.is_node_valid?(node.host_string)
           next
         elsif !node.connect
-          Mongo::StaticStorage.instance.add_unavailable_host(node.host_string)
+          Mongo::StaticStorage.instance.add_invalid_node(node.host_string)
           next
         elsif node.set_config
+          Mongo::StaticStorage.instance.valid_seed_node = [node.host, node.port]
           return node
         else
           node.close

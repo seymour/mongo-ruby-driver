@@ -1,19 +1,18 @@
 require 'singleton'
-require 'pp'
 
 module Mongo
   class StaticStorage
     include Singleton
-    attr_accessor :unavailable_hosts
+    attr_accessor :valid_seed_node
 
-    def add_unavailable_host(host)
-      @unavailable_hosts ||= []
-      @unavailable_hosts << host unless @unavailable_hosts.include?(host)
+    def add_invalid_node(host)
+      @invalid_nodes ||= []
+      @invalid_nodes << host unless @invalid_nodes.include?(host)
     end
 
-    def is_host_unavailable?(host)
-      @unavailable_hosts ||= []
-      @unavailable_hosts.include?(host)
+    def is_node_valid?(host)
+      @invalid_nodes ||= []
+      !@invalid_nodes.include?(host)
     end
   end
 end
