@@ -282,13 +282,11 @@ module Mongo
         node = Mongo::Node.new(self.connection, seed)
         return node if node.connect && node.set_config
       end
+      Mongo::StaticStorage.instance.valid_seed_node = nil
             
       seed_list.each do |seed|
         node = Mongo::Node.new(self.connection, seed)
-        if !Mongo::StaticStorage.instance.is_node_valid?(node.host_string)
-          next
-        elsif !node.connect
-          Mongo::StaticStorage.instance.add_invalid_node(node.host_string)
+        if !node.connect
           next
         elsif node.set_config
           Mongo::StaticStorage.instance.valid_seed_node = [node.host, node.port]
